@@ -60,6 +60,33 @@ def retrain(): # Ligado al endpoint '/api/v1/retrain/', metodo GET
         return f"Model retrained. New evaluation metric RMSE: {str(rmse)}, MAPE: {str(mape)}"
     else:
         return f"<h2>New data for retrain NOT FOUND. Nothing done!</h2>"
+    
+
+@app.route("/api/v1/predicts", methods = ["GET"])
+def predict_2():
+    with open("wine_model_3.pkl", "rb") as f:
+        model = pickle.load(f)
+
+    # def prediction(X):
+    #     pred = model.predict(X)
+    #     return jsonify({f"prediction_{i}": pred[i].astype(int) for i in range(len(X))})
+
+    
+    acidity = request.args.get("acidity", None)
+    chlorides = request.args.get("chlorides", None)
+    so = request.args.get("so", None)
+    sulphates = request.args.get("sulphates", None)
+
+    
+
+    if acidity is None or chlorides is None or so is None or sulphates is None:
+        return "Args empty, not enough data to predict"
+    else:
+        prediction = model.predict([[float(acidity),float(chlorides),float(so), float(sulphates)]])
+
+    #return jsonify({"data": (float(acidity), float(chlorides), float(so), float(sulphates))})
+    
+    return jsonify({'predictions': prediction[0]})
 
 if __name__ == '__main__':
     app.run(debug=True)
